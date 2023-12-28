@@ -9,11 +9,12 @@ describe Game do
     subject { game.run }
 
     it 'shows player1 as the winner' do
-      allow(test_input).to receive(:gets).and_return('0', '3', '1', '4', '2')
+      allow(test_input).to receive(:gets).and_return('0', '1', '2', '3', '4', '5', '7', '6', '8')
 
       subject
 
-      expect(test_output.string).to include('Drusas wins')
+      expect(test_output.string).to include('Player X wins')
+      expect(test_output.string).to_not include('Tie game')
     end
 
     it 'shows player2 as the winner' do
@@ -21,7 +22,16 @@ describe Game do
 
       subject
 
-      expect(test_output.string).to include('Kellhus wins')
+      expect(test_output.string).to include('Player O wins')
+    end
+
+    it 'shows a tie game' do
+      allow(test_input).to receive(:gets).and_return('0', '3', '1', '4', '5', '2', '6', '7', '8')
+
+      subject
+
+      expect(test_output.string).to include('Tie game')
+      expect(test_output.string).to_not include('wins')
     end
 
     it 'handles invalid input' do

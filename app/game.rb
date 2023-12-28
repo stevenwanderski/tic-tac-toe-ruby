@@ -13,15 +13,15 @@ class Game
     @values = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
     @board = Board.new(output: @output)
-    @player1 = Player.new(name: 'Drusas', symbol: 'X')
-    @player2 = Player.new(name: 'Kellhus', symbol: 'O')
+    @player1 = Player.new(symbol: 'X')
+    @player2 = Player.new(symbol: 'O')
     @active_player = @player1
   end
 
   def run
-    while true do
-      @board.print(@values)
+    @board.print(@values)
 
+    while available_moves? do
       input = get_input
 
       if !valid_input?(input)
@@ -31,8 +31,13 @@ class Game
 
       execute_move(input)
 
+      @board.print(@values)
+
       if winner = get_winner
         @output.puts "#{winner.name} wins!"
+        break
+      elsif tie_game?
+        @output.puts 'Tie game.'
         break
       end
 
@@ -42,22 +47,18 @@ class Game
 
   private
 
-  def get_input
-    @output.puts "#{@active_player.name} enter a move:"
-
-    @input.gets.chomp
+  def available_moves?
+    @values.any?(' ')
   end
 
   def execute_move(move)
     set_value(move, @active_player.symbol)
   end
 
-  def set_value(value, symbol)
-    @values[value.to_i] = symbol
-  end
+  def get_input
+    @output.puts "#{@active_player.name} enter a move:"
 
-  def switch_player
-    @active_player = @active_player == @player1 ? @player2 : @player1
+    @input.gets.chomp
   end
 
   def get_winner
@@ -71,7 +72,19 @@ class Game
   end
 
   def is_winner?(player)
-    @win_checker.run(@values, player.symbol)
+    @win_checker.win?(values: @values, symbol: player.symbol)
+  end
+
+  def set_value(value, symbol)
+    @values[value.to_i] = symbol
+  end
+
+  def switch_player
+    @active_player = @active_player == @player1 ? @player2 : @player1
+  end
+
+  def tie_game?
+    @win_checker.tie?(values: @values)
   end
 
   def valid_input?(input)

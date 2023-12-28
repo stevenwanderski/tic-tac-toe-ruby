@@ -1,5 +1,5 @@
 class WinChecker
-  def self.run(values, symbol)
+  def self.win?(values:, symbol:)
     # Top row
     (values[0] == symbol && values[1] == symbol && values[2] == symbol) ||
     # Middle row
@@ -16,5 +16,9 @@ class WinChecker
     (values[0] == symbol && values[4] == symbol && values[8] == symbol) ||
     # Second diagonal
     (values[2] == symbol && values[4] == symbol && values[6] == symbol)
+  end
+
+  def self.tie?(values:, empty_value: ' ')
+    values.none?(empty_value)
   end
 end
