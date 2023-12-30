@@ -1,5 +1,26 @@
 class WinChecker
-  def self.win?(values:, symbol:)
+  def initialize(board:, player:)
+    @board = board
+    @player = player
+  end
+
+  def game_over?
+    win? || tie?
+  end
+
+  def message
+    return "Player #{@player.symbol} wins!" if win?
+    return 'Tie game.' if tie?
+  end
+
+  def tie?
+    !win? && !@board.available_moves?
+  end
+
+  def win?
+    values = @board.values
+    symbol = @player.symbol
+
     # Top row
     (values[0] == symbol && values[1] == symbol && values[2] == symbol) ||
     # Middle row
@@ -16,9 +37,5 @@ class WinChecker
     (values[0] == symbol && values[4] == symbol && values[8] == symbol) ||
     # Second diagonal
     (values[2] == symbol && values[4] == symbol && values[6] == symbol)
-  end
-
-  def self.tie?(values:, empty_value: ' ')
-    values.none?(empty_value)
   end
 end

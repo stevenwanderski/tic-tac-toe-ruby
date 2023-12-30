@@ -2,92 +2,76 @@ require_relative './board'
 require_relative './player'
 require_relative './win_checker'
 require_relative './input_validator'
+require_relative './one_player_game'
+require_relative './two_player_game'
 
 class Game
-  def initialize(output: $stdout, input: $stdin)
+  def initialize(
+        output: $stdout,
+        input: $stdin,
+        one_player_game: OnePlayerGame,
+        two_player_game: TwoPlayerGame,
+        board: Board
+  )
     @output = output
     @input = input
-    @win_checker = WinChecker
-    @input_validator = InputValidator
-
-    @values = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-
-    @board = Board.new(output: @output)
-    @player1 = Player.new(symbol: 'X')
-    @player2 = Player.new(symbol: 'O')
-    @active_player = @player1
+    @one_player_game = one_player_game
+    @two_player_game = two_player_game
+    @board = board.new(output: @output)
   end
 
   def run
-    @board.print(@values)
+    mode = get_mode
 
-    while available_moves? do
-      input = get_input
-
-      if !valid_input?(input)
-        @output.puts 'Invalid choice.'
-        next
-      end
-
-      execute_move(input)
-
-      @board.print(@values)
-
-      if winner = get_winner
-        @output.puts "#{winner.name} wins!"
-        break
-      elsif tie_game?
-        @output.puts 'Tie game.'
-        break
-      end
-
-      switch_player
+    case mode
+    when '1'
+      @one_player_game.run(output: @output, board: @board)
+    when '2'
+      @two_player_game.run(output: @output, board: @board)
     end
   end
 
   private
 
-  def available_moves?
-    @values.any?(' ')
-  end
+  def get_mode
+    @output.puts 'Please select the game mode:'
+    @output.puts '1. One Player'
+    @output.puts '2. Two Players'
 
-  def execute_move(move)
-    set_value(move, @active_player.symbol)
-  end
+    mode_input = @input.gets.chomp
 
-  def get_input
-    @output.puts "#{@active_player.name} enter a move:"
-
-    @input.gets.chomp
-  end
-
-  def get_winner
-    if is_winner?(@player1)
-      return @player1
-    elsif is_winner?(@player2)
-      return @player2
+    case mode_input
+    when '1'
+      @output.puts 'One player mode selected!'
+      return '1'
+    when '2'
+      @output.puts 'Two player mode selected!'
+      return '2'
+    else
+      @output.puts 'Invalid input.'
+      get_mode
     end
-
-    nil
   end
 
-  def is_winner?(player)
-    @win_checker.win?(values: @values, symbol: player.symbol)
-  end
+  # def get_winner
+  #   if is_winner?(@player1)
+  #     return @player1
+  #   elsif is_winner?(@player2)
+  #     return @player2
+  #   end
 
-  def set_value(value, symbol)
-    @values[value.to_i] = symbol
-  end
+  #   nil
+  # end
 
-  def switch_player
-    @active_player = @active_player == @player1 ? @player2 : @player1
-  end
+  # def is_winner?(player)
+  #   @win_checker.win?(values: @values, symbol: player.symbol)
+  # end
 
-  def tie_game?
-    @win_checker.tie?(values: @values)
-  end
+  # def tie_game?
+  #   @win_checker.tie?(values: @values)
+  # end
 
-  def valid_input?(input)
-    @input_validator.run(input, @values)
-  end
+  # def valid_input?(input)
+  #   @input_validator.run(input, @values)
+  # end
 end
